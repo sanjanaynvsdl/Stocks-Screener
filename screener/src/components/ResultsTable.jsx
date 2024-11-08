@@ -1,48 +1,8 @@
 import { useState } from 'react'
 import { ArrowUpDown } from 'lucide-react'
-import QueryBuilder from './QueryBuilder'
 import { Tooltip } from './ui/Tooltip'
-import Papa from 'papaparse'
-
-const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSH50LZe3rv-T9XsQLEaTaB2tu3TvdsWjk0dTg60rYecyplrgqhcUC29oShrt2Ho0WZlokyihbwy7yX/pub?output=csv'
-
-export async function fetchAndProcessStockData() {
-  try {
-    const response = await fetch(url)
-    const csvData = await response.text()
-    
-    return new Promise((resolve, reject) => {
-      Papa.parse(csvData, {
-        header: true,
-        skipEmptyLines: true,
-        complete: (results) => {
-          console.log('Fetched data:', results.data);
-          const stocks = results.data
-            .filter(row => row.Name || row.Ticker)
-            .map((row, index) => ({
-              id: index + 1,
-              name: row.Name || row.Ticker,
-              marketCap: parseFloat(row['Market Cap']) || 0,
-              pe: parseFloat(row['P/E']) || 0,
-              roe: parseFloat(row['ROE']) || 0,
-              debtToEquity: parseFloat(row['Debt to Equity']) || 0,
-              divYield: parseFloat(row['Div Yield']) || 0,
-              revenueGrowth: parseFloat(row['Revenue Growth']) || 0,
-              epsGrowth: parseFloat(row['EPS Growth']) || 0,
-              currentRatio: parseFloat(row['Current Ratio']) || 0,
-              grossMargin: parseFloat(row['Gross Margin']) || 0,
-              latestResults: row['Latest Results Date'] || ''
-            }))
-          resolve(stocks)
-        },
-        error: reject
-      })
-    })
-  } catch (error) {
-    console.error('Error fetching stock data:', error)
-    throw error
-  }
-}
+import { fetchAndFilterStockData } from '../utils/stockDataUtils'
+import QueryBuilder from './QueryBuilder'
 
 function ResultsTable({ results, loading, onQuerySubmit, setLoading }) {
   const [currentPage, setCurrentPage] = useState(1)
@@ -57,14 +17,14 @@ function ResultsTable({ results, loading, onQuerySubmit, setLoading }) {
     setSortConfig({ key, direction })
   }
 
-  const sortedResults = [...results].sort((a, b) => {
+  const sortedResults = [...results.stocks].sort((a, b) => {
     if (!sortConfig.key) return 0
     const aVal = parseFloat(a[sortConfig.key]) || 0
     const bVal = parseFloat(b[sortConfig.key]) || 0
     return sortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal
   })
 
-  const totalPages = Math.ceil(results.length / itemsPerPage)
+  const totalPages = Math.ceil(results.stocks.length / itemsPerPage)
   const indexOfLastItem = currentPage * itemsPerPage
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
   const currentItems = sortedResults.slice(indexOfFirstItem, indexOfLastItem)
@@ -95,7 +55,7 @@ function ResultsTable({ results, loading, onQuerySubmit, setLoading }) {
         
         <div className="p-4 border-b">
           <h3 className="text-lg">
-            {results.length} results found: Showing page {currentPage} of {totalPages}
+            {results.stocks.length} results found: Showing page {currentPage} of {totalPages}
           </h3>
         </div>
 
@@ -125,19 +85,27 @@ function ResultsTable({ results, loading, onQuerySubmit, setLoading }) {
                   <td colSpan={columns.length} className="text-center py-4">Loading...</td>
                 </tr>
               ) : (
-                currentItems.map((stock, index) => (
-                  <tr key={stock.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm">{indexOfFirstItem + index + 1}</td>
-                    <td className="px-4 py-3 text-sm text-blue-600 hover:underline cursor-pointer">
-                      {stock.name}
-                    </td>
-                    {columns.slice(2).map(({ id }) => (
-                      <td key={id} className="px-4 py-3 text-sm">
-                        {stock[id] !== undefined ? stock[id].toFixed(2) : 'N/A'}
+                currentItems.length > 0 ? (
+                  currentItems.map((stock, index) => (
+                    <tr key={stock.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 text-sm">{indexOfFirstItem + index + 1}</td>
+                      <td className="px-4 py-3 text-sm text-blue-600 hover:underline cursor-pointer">
+                        {stock.name}
                       </td>
-                    ))}
+                      {columns.slice(2).map(({ id }) => (
+                        <td key={id} className="px-4 py-3 text-sm">
+                          {stock[id] !== undefined ? stock[id].toFixed(2) : 'N/A'}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={columns.length} className="text-center py-4 text-red-600">
+                      {results.message}
+                    </td>
                   </tr>
-                ))
+                )
               )}
             </tbody>
           </table>
@@ -165,10 +133,8 @@ function ResultsTable({ results, loading, onQuerySubmit, setLoading }) {
           </span>
         </div>
       </div>
-      
-      <div className="mt-8">
-        <QueryBuilder onQuerySubmit={onQuerySubmit} setLoading={setLoading} />
-      </div>
+
+      <QueryBuilder onQuerySubmit={onQuerySubmit} setLoading={setLoading} />
     </div>
   )
 }

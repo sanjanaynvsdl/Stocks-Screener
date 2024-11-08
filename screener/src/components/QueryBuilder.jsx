@@ -48,14 +48,13 @@ function QueryBuilder({ onQuerySubmit, setLoading }) {
           <div className="bg-blue-50 rounded-lg p-4 h-48">
             <h3 className="text-lg font-semibold mb-4">Custom query example</h3>
             <div className="space-y-2 text-gray-700">
-              <p>Market capitalization {'>'} 500 AND</p>
-              <p>Price to earning {'<'} 15 AND</p>
-              <p>Return on capital employed {'>'} 22%</p>
-              <a href="#" className="text-blue-600 hover:underline mt-4  block">
-              Detailed guide on creating screens
-            </a>
+              <p>Market capitalization {'>'} 10000 AND</p>
+              <p>ROE {'>'} 15 AND</p>
+              <p>EPS Growth {'>'} 10</p>
+              <a href="#" className="text-blue-600 hover:underline mt-4 block">
+                Detailed guide on creating screens
+              </a>
             </div>
-            
           </div>
         </div>
       </div>
