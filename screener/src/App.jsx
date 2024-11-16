@@ -35,3 +35,5 @@ function App() {
 }
 
 export default App
+
+//1. Handle errors in input bar for the first page
