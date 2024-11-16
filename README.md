@@ -1,6 +1,5 @@
 # Stock Screener Application
 
-## Overview
 A React-based stock screening tool that allows users to filter and analyze stocks based on various financial metrics like Market Cap, P/E Ratio, ROE, etc. Users can create custom queries with multiple conditions and view results in a sortable table format.
 
 ## Features
@@ -10,21 +9,22 @@ A React-based stock screening tool that allows users to filter and analyze stock
 - Responsive design
 
 ## Code Structure
-
+```bash
 screener/
 ├── src/
 │ ├── components/
 │ │ ├── Navbar.jsx                  # Application header
-│ │ ├── QueryBuilder.jsx       # Query input and filtering interface
-│ │ ├── ResultsTable.jsx        # Displays filtered stocks data
+│ │ ├── QueryBuilder.jsx            # Query input and filtering interface
+│ │ ├── ResultsTable.jsx            # Displays filtered stocks data
 │ │ └── ui/
 │ │ └── Tooltip.jsx 
 │ ├── utils/
-│ │ └── stockDataUtils.js       # Data fetching and processing logic
-│ ├── App.jsx # Main application component
+│ │ └── stockDataUtils.js           # Data fetching and processing logic
+│ ├── App.jsx                       # Main application component
 │ ├── main.jsx 
-│ └── index.css                  # Global styles (Tailwind CSS)
-└── package.json                 # Project dependencies and scripts
+│ └── index.css                     # Global styles (Tailwind CSS)
+└── package.json                    # Project dependencies and scripts
+```
 
 ## Dataset
 The application fetches stock data from a Google Sheets CSV endpoint. The dataset includes various financial metrics for Indian companies including market capitalization, P/E ratio, ROE, and growth metrics.
@@ -33,7 +33,7 @@ The application fetches stock data from a Google Sheets CSV endpoint. The datase
 
 1. Clone the repository:
 ```bash
-git clone [repository-url]
+git clone https://github.com/sanjanaynvsdl/Stocks-Screener.git
 cd screener
 ```
 
